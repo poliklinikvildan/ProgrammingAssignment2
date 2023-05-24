@@ -1,58 +1,25 @@
-# Function to create a matrix object with caching capabilities
-makeCacheMatrix <- function(matrix = numeric()) {
-  inverse <- NULL
-  
-  # Function to set the matrix
-  set <- function(matrix_input) {
-    matrix <<- matrix_input
-    inverse <<- NULL  # Reset the cached inverse when the matrix is updated
-  }
-  
-  # Function to get the matrix
-  get <- function() {
-    matrix
-  }
-  
-  # Function to set the cached inverse
-  setInverse <- function(inverse_matrix) {
-    inverse <<- inverse_matrix
-  }
-  
-  # Function to get the cached inverse
-  getInverse <- function() {
-    inverse
-  }
-  
-  # Return a list of functions
-  list(set = set, get = get, setInverse = setInverse, getInverse = getInverse)
-}
+name: Run R script
 
-# Function to compute the inverse of a matrix with caching
-cacheSolve <- function(cacheMatrix) {
-  # Check if the cached inverse exists
-  if (!is.null(cacheMatrix$getInverse())) {
-    message("Getting cached inverse")
-    return(cacheMatrix$getInverse())
-  }
-  
-  # If the cached inverse doesn't exist, calculate the inverse
-  matrix_data <- cacheMatrix$get()
-  inverse_matrix <- solve(matrix_data)
-  
-  # Cache the inverse
-  cacheMatrix$setInverse(inverse_matrix)
-  
-  inverse_matrix
-}
+on:
+  push:
+    branches:
+      - main
 
-# Create a matrix
-matrix_data <- matrix(c(1, 2, 3, 4), nrow = 2)
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-# Create a cache matrix object
-cacheMatrix <- makeCacheMatrix(matrix_data)
+    steps:
+    - uses: actions/checkout@v2
 
-# Compute the inverse using cacheSolve
-inverse_matrix <- cacheSolve(cacheMatrix)
+    - name: Set up R
+      uses: r-lib/actions/setup-r@v1
+      with:
+        r-version: 4.1
 
-# Print the inverse matrix
-inverse_matrix
+    - name: Install dependencies
+      run: |
+        Rscript -e 'install.packages("packagename")'
+
+    - name: Run R script
+      run: Rscript script.R
