@@ -1,40 +1,58 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-#
-# See https://github.com/r-lib/actions/tree/master/examples#readme for
-# additional example workflows available for the R community.
+# Function to create a matrix object with caching capabilities
+makeCacheMatrix <- function(matrix = numeric()) {
+  inverse <- NULL
+  
+  # Function to set the matrix
+  set <- function(matrix_input) {
+    matrix <<- matrix_input
+    inverse <<- NULL  # Reset the cached inverse when the matrix is updated
+  }
+  
+  # Function to get the matrix
+  get <- function() {
+    matrix
+  }
+  
+  # Function to set the cached inverse
+  setInverse <- function(inverse_matrix) {
+    inverse <<- inverse_matrix
+  }
+  
+  # Function to get the cached inverse
+  getInverse <- function() {
+    inverse
+  }
+  
+  # Return a list of functions
+  list(set = set, get = get, setInverse = setInverse, getInverse = getInverse)
+}
 
-name: R
+# Function to compute the inverse of a matrix with caching
+cacheSolve <- function(cacheMatrix) {
+  # Check if the cached inverse exists
+  if (!is.null(cacheMatrix$getInverse())) {
+    message("Getting cached inverse")
+    return(cacheMatrix$getInverse())
+  }
+  
+  # If the cached inverse doesn't exist, calculate the inverse
+  matrix_data <- cacheMatrix$get()
+  inverse_matrix <- solve(matrix_data)
+  
+  # Cache the inverse
+  cacheMatrix$setInverse(inverse_matrix)
+  
+  inverse_matrix
+}
 
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
+# Create a matrix
+matrix_data <- matrix(c(1, 2, 3, 4), nrow = 2)
 
-permissions:
-  contents: read
+# Create a cache matrix object
+cacheMatrix <- makeCacheMatrix(matrix_data)
 
-jobs:
-  build:
-    runs-on: macos-latest
-    strategy:
-      matrix:
-        r-version: ['3.6.3', '4.1.1']
+# Compute the inverse using cacheSolve
+inverse_matrix <- cacheSolve(cacheMatrix)
 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Set up R ${{ matrix.r-version }}
-        uses: r-lib/actions/setup-r@f57f1301a053485946083d7a45022b278929a78a
-        with:
-          r-version: ${{ matrix.r-version }}
-      - name: Install dependencies
-        run: |
-          install.packages(c("remotes", "rcmdcheck"))
-          remotes::install_deps(dependencies = TRUE)
-        shell: Rscript {0}
-      - name: Check
-        run: rcmdcheck::rcmdcheck(args = "--no-manual", error_on = "error")
-        shell: Rscript {0}
+# Print the inverse matrix
+inverse_matrix
