@@ -1,0 +1,67 @@
+# Programming Assignment 2 Solution: 
+# Cacheing an inverse matrix solution object
+# This script defines functions to create a matrix object with caching capabilities
+# and compute its inverse using a caching mechanism.
+
+# Function to create a matrix object with caching capabilities
+makeCacheMatrix <- function(x = matrix()) {
+  # Create a variable to store the cached inverse
+  inverse <- NULL
+  
+  # Function to set the matrix
+  set <- function(matrix_input) {
+    x <<- matrix_input
+    inverse <<- NULL  # Reset the cached inverse when the matrix is updated
+  }
+  
+  # Function to get the matrix
+  get <- function() {
+    x
+  }
+  
+  # Function to set the cached inverse
+  setInverse <- function(inverse_matrix) {
+    inverse <<- inverse_matrix
+  }
+  
+  # Function to get the cached inverse
+  getInverse <- function() {
+    inverse
+  }
+  
+  # Return a list of functions
+  list(set = set, get = get, setInverse = setInverse, getInverse = getInverse)
+}
+
+
+# Function to compute the inverse of a matrix with caching
+cacheSolve <- function(x, ...) {
+  # Check if the cached inverse exists
+  if (!is.null(x$getInverse())) {
+    message("Getting cached inverse")
+    return(x$getInverse())
+  }
+  
+  # If the cached inverse doesn't exist, calculate the inverse
+  inverse_matrix <- solve(x$get())
+  
+  # Cache the inverse
+  x$setInverse(inverse_matrix)
+  
+  inverse_matrix
+}
+
+# Create a matrix
+matrix_data <- matrix(c(1, 2, 3, 4), nrow = 2)
+
+# Create a cache matrix object
+cacheMatrix <- makeCacheMatrix(matrix_data)
+
+# Compute the inverse using cacheSolve
+inverse_matrix <- cacheSolve(cacheMatrix)
+
+# Print the inverse matrix
+inverse_matrix
+     [,1] [,2]
+[1,]   -2  1.5
+[2,]    1 -0.5
