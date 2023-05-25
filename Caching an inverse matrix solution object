@@ -1,9 +1,4 @@
-# Programming Assignment 2 Solution: 
-# Cacheing an inverse matrix solution object
-# This script defines functions to create a matrix object with caching capabilities
-# and compute its inverse using a caching mechanism.
-
-# Function to create a matrix object with caching capabilities
+  # Function to create a matrix object with caching capabilities
 makeCacheMatrix <- function(x = matrix()) {
   # Create a variable to store the cached inverse
   inverse <- NULL
@@ -62,6 +57,3 @@ inverse_matrix <- cacheSolve(cacheMatrix)
 
 # Print the inverse matrix
 inverse_matrix
-     [,1] [,2]
-[1,]   -2  1.5
-[2,]    1 -0.5
